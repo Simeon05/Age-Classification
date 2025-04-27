@@ -1,115 +1,109 @@
 # Age-Classification
 
+##  Project Overview
 
-📚 Project Overview
-This project focuses on age estimation from facial images using Deep Learning models.
-It involves:
+This project focuses on age prediction using deep learning models. It includes:
+- **Classification**: Predicting age categories (Child, Teenager, Adult, Senior)
+- **Regression**: Predicting actual numerical ages
+- **Transfer Learning**: Using a pre-trained encoder and MobileNet
+- **Bias Analysis**: Studying gender bias in age classification
 
-Classification (predicting age categories: Child, Teenager, Adult, Senior)
+---
 
-Regression (predicting actual age)
+## 📂 Repository Structure
 
-Transfer Learning (with a custom autoencoder and MobileNet)
+- `Notebooks/` – Code notebooks for data preparation, modeling, and evaluation
+- `Models/` – Saved best models
+- `Dataset/` – Processed image dataset
 
-Bias Analysis (evaluating gender bias impact)
+---
 
-📂 Repository Structure
-Notebooks/ → Code notebooks for data preparation, modeling, and evaluation.
+## Project Details
 
-Models/ → Best trained models saved for reuse.
+### Part 1: Simple Age Estimator
 
-Dataset/ → Processed and cleaned dataset used for training and evaluation.
+- **Data Loading**: Used `keras.utils.image_dataset_from_directory` to load facial images.
+- **Preprocessing**:
+  - Image validation: Only JPG, JPEG, BMP, PNG formats retained
+  - Data normalization: Pixel values scaled to [0,1]
+  - Label mapping: Age mapped into 4 categories:
+    - 0: Child (Age < 13)
+    - 1: Teenager (13–19)
+    - 2: Adult (20–59)
+    - 3: Senior (60+)
+- **Dataset Split**:
+  - 70% Training
+  - 20% Validation
+  - 10% Testing
 
-🚀 Project Highlights
-Part 1: Simple Age Estimator
-Data Loading: Images loaded using keras.utils.image_dataset_from_directory.
+- **Models Developed**:
+  - 5 CNN models for classification
+    - `Model_1` achieved highest precision (0.9763) and accuracy (81.08%)
+  - 6 CNN models for regression
+    - `Model_reg_skip` with skip connections achieved best loss
 
-Preprocessing:
+- **Technical Challenges**:
+  - Correct label mapping inside `tf.data` pipeline
+  - Solving mismatch errors in loss functions
+  - Dealing with overfitting and underfitting
 
-Valid image formats ensured (JPG, JPEG, BMP, PNG)
+---
 
-Normalization (pixel scaling [0,1])
+### Part 2: Transfer Learning with Pretrained Encoder
 
-Age labels mapped into 4 categories.
+- **Encoder Pretraining**:
+  - Built a custom autoencoder and pretrained it on a portion of data (Block 1)
+- **Transfer Learning Models**:
+  - **Base Model** (simple head)
+  - **Tuned Model 1** (larger dense layer with tanh activation)
+  - **Tuned Model 2** (flattened encoder output + ReLU)
+  - **Tuned Model 3** (unfrozen encoder + deep dense layers)
 
-Tasks:
+- **Best Model**:
+  - **Tuned Model 3**: Unfreezing encoder improved feature adaptation and achieved highest performance.
 
-Classification: Predicts age category.
+- **Benchmark Model**:
+  - **MobileNet V2** (fine-tuned on dataset)
+  - Achieved slightly better overall accuracy compared to homegrown models.
 
-Regression: Predicts exact age.
+---
 
-Model Architectures:
+### Part 3: Bias Analysis - Gender Segregation
 
-5 Classification CNNs (Model_1 best with 81% accuracy).
+- **Gender Separation**:
+  - Used a pretrained Caffe model to detect and separate male-only images.
+- **Training**:
+  - Trained identical CNN architectures on:
+    - Male-only dataset
+    - Mixed-gender dataset
 
-6 Regression CNNs (Model_reg_skip best using skip connections).
+- **Results**:
+  | Model | Accuracy | Precision | Recall | F1-Score |
+  |:------|:---------|:----------|:-------|:---------|
+  | Male-Only | 85.71% | 95.39% | 95.39% | 95.39% |
+  | Mixed-Gender | 78.57% | 96.89% | 97.50% | 97.20% |
 
-Technical Challenges Solved:
+- **Observations**:
+  - Male-only model had higher accuracy but signs of overfitting.
+  - Mixed-gender model had better F1-score, suggesting better generalization.
 
-Label mapping
+---
 
-Loss function mismatch
+## Key Takeaways
 
-Overfitting and underfitting
+- Using **tanh** activation helped stabilize classification training.
+- **Skip connections** significantly improved regression performance.
+- **Transfer learning** (fine-tuning the encoder) boosted classification accuracy.
+- **Pretrained MobileNet** outperformed custom models slightly.
+- **Balanced datasets** are critical to mitigate bias.
 
-Part 2: Transfer Learning with Pretrained Encoder
-Encoder Pretraining: Custom autoencoder trained on Block 1.
+---
 
-Classification Models:
+## Technologies Used
 
-Base Model
-
-Tuned Models 1, 2
-
-Tuned Model 3: Best performance after unfreezing the encoder.
-
-Benchmark Model: Fine-tuned MobileNet (best overall accuracy).
-
-Highlights:
-
-Fine-tuning improved feature learning.
-
-Skip connections and deeper heads enhanced performance.
-
-Part 3: Bias Analysis - Gender Segregation
-Gender-based Datasets:
-
-Male-only dataset
-
-Mixed-gender dataset
-
-Models: Identical CNNs trained separately on each subset.
-
-Findings:
-
-Male-only model achieved higher accuracy (85.7%) but showed signs of overfitting.
-
-Mixed-gender model had better generalization (higher F1-score: 0.9720).
-
-📈 Key Results
-
-Model	Accuracy	Precision	Recall	F1-Score
-Model_1 (Simple CNN)	81.08%	97.63%	-	-
-Tuned Model 3 (Autoencoder)	Best performance among homegrown models			
-MobileNet (Pretrained)	Best overall accuracy			
-Male-Only Model	85.71%	95.39%	95.39%	95.39%
-Mixed-Gender Model	78.57%	96.89%	97.50%	97.20%
-⚙️ Technologies Used
-TensorFlow
-
-Keras
-
-Python 3.9+
-
-Google Colab
-
-📜 Acknowledgments
-Pre-trained gender classification model: [Caffe Model from GitHub]
-
-Pre-trained MobileNet from TensorFlow Hub
-
-Face-Age Dataset
-
-📝 Declaration
-I confirm that the document and related code here is all my own work and that I did not engage in unfair practice in any way.
-
+- TensorFlow 2.x
+- Keras
+- Python 3.9+
+- Google Colab
+- Caffe (for gender model)
+- Matplotlib, NumPy
